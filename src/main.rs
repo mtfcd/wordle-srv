@@ -57,7 +57,6 @@ fn check(id: i64, guess: &str) -> Json<Resp<Vec<u8>>> {
         Ok(problem) => {
             let mut holder = problem.word.chars().collect::<Vec<char>>();
             let res = guess.chars().enumerate().map(|(idx, c)| {
-                dbg!(idx, c, holder[idx]);
                 if holder[idx] == c {
                     holder[idx] = '0';
                     return 2
