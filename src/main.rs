@@ -1,39 +1,63 @@
 #[macro_use] extern crate rocket;
-use db::Problem;
-use rocket::serde::json::Json;
-use std::collections::HashSet;
+use rocket::serde::{Serialize, json::Json};
 
 mod db;
 
+#[derive(Serialize)]
+struct Resp<T> {
+    code: i64,
+    msg: &'static str,
+    data: Option<T>
+}
+
+impl<T> Resp<T> {
+    fn success(data: T) -> Self {
+        Self {
+            code: 0,
+            msg: "ok",
+            data: Some(data)
+        }
+    }
+
+    fn err(msg: &'static str) -> Self {
+        Self {
+            code: 1,
+            msg,
+            data: None
+        }
+    }
+
+}
 
 #[post("/create?<word>")]
-fn create(word: &str) -> String {
+fn create(word: &str) -> Json<Resp<String>> {
     let res = db::insert_problem(word);
     if let Ok(id) = res {
-        return format!("/problem?id={}", id)
+        return Json(Resp::success(format!("/problem?id={}", id)))
     } else {
-        return "".to_string()
+        return Json(Resp::err("invalid word"))
     }
 }
 
 #[get("/getProblem?<id>")]
-fn get_problem(id: i64) -> Json<usize> {
+fn get_problem(id: i64) -> Json<Resp<usize>> {
     let res = db::get_problem_by_id(id);
     if let Ok(problem) = res {
-        return Json(problem.word.chars().count())
+        return Json(Resp::success(problem.word.chars().count()))
     } else {
-        return Json(0)
+        return Json(Resp::err("invalid problem"))
     }
 }
 
 #[get("/check?<id>&<guess>")]
-fn check(id: i64, guess: &str) -> Vec<u8> {
+fn check(id: i64, guess: &str) -> Json<Resp<Vec<u8>>> {
     let res = db::get_problem_by_id(id);
     match res {
-        Ok(problem) if problem.word.chars().count() != guess.chars().count() => return vec![0],
+        Ok(problem) if problem.word.chars().count() != guess.chars().count() => Json(Resp::err("bad input")),
         Ok(problem) => {
             let mut holder = problem.word.chars().collect::<Vec<char>>();
-            guess.chars().enumerate().map(|(idx, c)| {
+            let res = guess.chars().enumerate().map(|(idx, c)| {
+                dbg!(idx, c, holder[idx]);
                 if holder[idx] == c {
                     holder[idx] = '0';
                     return 2
@@ -43,9 +67,10 @@ fn check(id: i64, guess: &str) -> Vec<u8> {
                 } else {
                     return 0
                 }
-            }).collect()
+            }).collect();
+            Json(Resp::success(res))
         }
-        Err(_)  => return vec![0]
+        Err(_)  => Json(Resp::err("not a word"))
     }
 }
 

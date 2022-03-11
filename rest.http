@@ -1,5 +1,16 @@
 @host=http://127.0.0.1:8000
 
 ###
+POST {{host}}/create
+?word=love
 
-POST {{host}}/create?word=love
+
+###
+GET {{host}}/getProblem
+?id=2
+
+
+###
+GET {{host}}/check
+?id=4
+&guess=abcd
