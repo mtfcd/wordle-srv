@@ -14,3 +14,8 @@ GET {{host}}/getProblem
 GET {{host}}/check
 ?id=4
 &guess=abcd
+
+
+###
+GET {{host}}/getGuesses
+?id=4

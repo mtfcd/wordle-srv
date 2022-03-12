@@ -41,6 +41,43 @@ pub fn get_problem_by_id(id: i64) -> Result<Problem> {
     Ok(problem)
 }
 
+pub fn insert_guess(problem_id: i64, guess: &str) -> Result<i64> {
+    let conn = Connection::open("wordle.db")?;
+
+    conn.execute(
+        "CREATE TABLE if not exists guesses (
+                  id              INTEGER PRIMARY KEY,
+                  problem_id      INTEGER,
+                  guess           TEXT NOT NULL,
+                  date            TEXT
+            )",
+        [],
+    )?;
+    conn.execute(
+        "INSERT INTO guesses (problem_id, guess, date) VALUES (?1, ?2, ?3)",
+        params![problem_id, guess, Utc::now()],
+    )?;
+
+    Ok(conn.last_insert_rowid())
+}
+
+pub fn get_guesses(problem_id: i64) -> Result<Vec<String>> {
+    let conn = Connection::open("wordle.db")?;
+    let mut stmt = conn.prepare(
+        "SELECT guess FROM guesses WHERE problem_id = ?1
+            ORDER BY id"
+    )?;
+    let rows = stmt.query_map(params![problem_id], |row| {
+        row.get(0)
+    })?;
+
+    let mut guesses = Vec::new();
+    for name_result in rows {
+        guesses.push(name_result?);
+    }
+
+    Ok(guesses)
+}
 
 #[test]
 fn test_db(){
