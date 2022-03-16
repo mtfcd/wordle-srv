@@ -13,7 +13,8 @@ GET {{host}}/getProblem
 ###
 GET {{host}}/check
 ?id=4
-&guess=abcd
+&guess=word
+&line=1
 
 
 ###

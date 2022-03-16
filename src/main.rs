@@ -1,6 +1,5 @@
 #[macro_use] extern crate rocket;
 
-
 mod services;
 mod fairings;
 mod db;
