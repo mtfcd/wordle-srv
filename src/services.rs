@@ -103,7 +103,7 @@ pub fn get_guesses(id: i64) -> Json<Resp<Guesses>> {
     if let Ok(guesses) = res {
         let res = guesses.iter().map(|g| compute_word(problem.clone(), g)).collect();
         let data = Guesses{
-            guesses,
+            guesses: guesses.iter().map(|s| s.to_ascii_uppercase()).collect(),
             res
         };
         return Json(Resp::success(data))
