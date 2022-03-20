@@ -10,5 +10,5 @@ use services::*;
 fn rocket() -> _ {
     rocket::build()
         .attach(fairings::CORS)
-        .mount("/", routes![create, get_problem, check, get_guesses])
+        .mount("/api/", routes![create, get_problem, check, get_guesses])
 }
