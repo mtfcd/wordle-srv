@@ -53,7 +53,7 @@ pub fn get_problem(id: i64) -> Json<Resp<usize>> {
 fn compute_word(problem: String, guess: &str) -> Vec<u8> {
     let mut holder = problem.chars().collect::<Vec<char>>();
     guess.chars().enumerate().map(|(idx, c)| {
-        if holder[idx] == c {
+        if Some(c) == problem.chars().nth(idx) {
             holder[idx] = '0';
             return 2
         } else if let Some(p) = holder.iter().position(|&r| r == c) {
