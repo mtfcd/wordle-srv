@@ -32,6 +32,9 @@ impl<T> Resp<T> {
 #[post("/create?<word>")]
 pub fn create(word: &str) -> Json<Resp<String>> {
     let word1 = word.to_ascii_lowercase();
+    if db::find_word(&word1).is_err() {
+        return Json(Resp::err("not a word"))
+    }
     let res = db::insert_problem(&word1);
     if let Ok(id) = res {
         return Json(Resp::success(format!("/problem?id={}", id)))
